@@ -5,4 +5,4 @@ Bot converts documents to PDF format
 ## Tasks
 
 - [x] Bot
-- [ ] Converter
+- [ ] Converter (based on `unoconv` utility)
