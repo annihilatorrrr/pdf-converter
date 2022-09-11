@@ -5,10 +5,13 @@ import (
 	"time"
 
 	tele "gopkg.in/telebot.v3"
-	"gopkg.in/telebot.v3/middleware"
 )
 
-const startMessage = "Welcome to PDF Converter!\n\nSubmit the document and the bot will return the same PDF file"
+const (
+	startMessage = "Welcome to PDF Converter\n\nUpload a document and the bot will return the same file to PDF format"
+	mpMessage    = "This document cannot be converted to PDF format"
+	photoMessage = "Upload a photo as a file"
+)
 
 func New(cnv Converter) (*tele.Bot, error) {
 	timeout, err := time.ParseDuration(os.Getenv("POLLER_TIMEOUT"))
@@ -26,14 +29,23 @@ func New(cnv Converter) (*tele.Bot, error) {
 		return nil, err
 	}
 
-	bot.Use(middleware.Logger())
-
 	bot.Handle("/start", func(ctx tele.Context) error {
 		return ctx.Send(startMessage)
 	})
 
-	// TODO
-	bot.Handle(tele.OnText, cnv.Convert)
+	bot.Handle(tele.OnAudio, func(ctx tele.Context) error {
+		return ctx.Reply(mpMessage)
+	})
+
+	bot.Handle(tele.OnVideo, func(ctx tele.Context) error {
+		return ctx.Reply(mpMessage)
+	})
+
+	bot.Handle(tele.OnPhoto, func(ctx tele.Context) error {
+		return ctx.Reply(photoMessage)
+	})
+
+	bot.Handle(tele.OnDocument, cnv.Convert)
 
 	return bot, nil
 }

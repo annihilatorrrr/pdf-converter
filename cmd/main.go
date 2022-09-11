@@ -6,6 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	_ "go.uber.org/automaxprocs"
+
 	"github.com/ew1l/pdf-converter/internal/bot"
 	"github.com/ew1l/pdf-converter/internal/service"
 	"github.com/joho/godotenv"
@@ -18,7 +20,8 @@ func init() {
 }
 
 func main() {
-	bot, err := bot.New(&service.Converter{})
+	converter := service.New(&service.Logger{})
+	bot, err := bot.New(converter)
 	if err != nil {
 		log.Fatalln(err)
 	}
