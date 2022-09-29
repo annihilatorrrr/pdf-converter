@@ -2,7 +2,7 @@
 
 Bot converts documents to PDF format
 
-![image](https://user-images.githubusercontent.com/34972940/189506362-ac392add-3106-436a-a001-7dc9ca35e872.png)
+![pdfcnv](https://user-images.githubusercontent.com/34972940/192986248-3c135d26-64f4-4ffc-a73f-c48e7936b163.PNG)
 
 ## TODO
 
