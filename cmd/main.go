@@ -10,14 +10,7 @@ import (
 
 	"github.com/ew1l/pdf-converter/internal/bot"
 	"github.com/ew1l/pdf-converter/internal/service"
-	"github.com/joho/godotenv"
 )
-
-func init() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatalln(err)
-	}
-}
 
 func main() {
 	converter := service.New(&service.Logger{})
