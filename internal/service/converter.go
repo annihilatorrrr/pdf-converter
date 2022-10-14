@@ -13,12 +13,12 @@ import (
 
 type Converter struct {
 	sync.Mutex
-	lgr *Logger
+	logger *Logger
 }
 
-func New(lgr *Logger) *Converter {
+func New(logger *Logger) *Converter {
 	return &Converter{
-		lgr: lgr,
+		logger: logger,
 	}
 }
 
@@ -28,13 +28,13 @@ func (cnv *Converter) Convert(ctx tele.Context) error {
 		output := strings.TrimSuffix(input, filepath.Ext(input)) + ".pdf"
 
 		if err := ctx.Bot().Download(ctx.Message().Document.MediaFile(), input); err != nil {
-			cnv.lgr.Error(ctx, err.Error())
+			cnv.logger.Error(ctx, err.Error())
 			return
 		}
 		defer os.Remove(input)
 
 		if msg, err := cnv.unoconv(input); err != nil {
-			cnv.lgr.Error(ctx, string(msg))
+			cnv.logger.Error(ctx, string(msg))
 			return
 		}
 		defer os.Remove(output)
@@ -43,11 +43,11 @@ func (cnv *Converter) Convert(ctx tele.Context) error {
 			File:     tele.FromDisk(output),
 			FileName: output,
 		}); err != nil {
-			cnv.lgr.Error(ctx, err.Error())
+			cnv.logger.Error(ctx, err.Error())
 			return
 		}
 
-		cnv.lgr.Info(ctx, fmt.Sprintf("%s -> %s", input, output))
+		cnv.logger.Info(ctx, fmt.Sprintf("%s -> %s", input, output))
 	}(ctx)
 
 	return nil
