@@ -1,40 +1,51 @@
 package service
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
 
+	"github.com/ew1l/pdf-converter/pkg/logger"
 	tele "gopkg.in/telebot.v3"
 )
 
 type Converter struct {
 	sync.Mutex
-	logger *Logger
 }
 
-func New(logger *Logger) *Converter {
-	return &Converter{
-		logger: logger,
-	}
+func New() *Converter {
+	return &Converter{}
 }
 
 func (cnv *Converter) Convert(ctx tele.Context) error {
 	go func(ctx tele.Context) {
 		input := ctx.Message().Document.FileName
 		output := strings.TrimSuffix(input, filepath.Ext(input)) + ".pdf"
+		args := []any{"username", ctx.Sender().Username, "input", input, "output", output}
+
+		if err := ctx.Reply("In process..."); err != nil {
+			logger.Error(err.Error(), args...)
+			return
+		}
 
 		if err := ctx.Bot().Download(ctx.Message().Document.MediaFile(), input); err != nil {
-			cnv.logger.Error(ctx, err.Error())
+			logger.Error(err.Error(), args...)
+			if err := failure(ctx); err != nil {
+				logger.Error(err.Error(), args...)
+				return
+			}
 			return
 		}
 		defer os.Remove(input)
 
-		if msg, err := cnv.unoconv(input); err != nil {
-			cnv.logger.Error(ctx, string(msg))
+		if _, err := cnv.unoconv(input); err != nil {
+			logger.Error(err.Error(), args...)
+			if err := failure(ctx); err != nil {
+				logger.Error(err.Error(), args...)
+				return
+			}
 			return
 		}
 		defer os.Remove(output)
@@ -43,11 +54,15 @@ func (cnv *Converter) Convert(ctx tele.Context) error {
 			File:     tele.FromDisk(output),
 			FileName: output,
 		}); err != nil {
-			cnv.logger.Error(ctx, err.Error())
+			logger.Error(err.Error())
+			if err := failure(ctx); err != nil {
+				logger.Error(err.Error(), args...)
+				return
+			}
 			return
 		}
 
-		cnv.logger.Info(ctx, fmt.Sprintf("%s -> %s", input, output))
+		logger.Info("Сompleted", args...)
 	}(ctx)
 
 	return nil
@@ -58,4 +73,12 @@ func (cnv *Converter) unoconv(input string) ([]byte, error) {
 	defer cnv.Unlock()
 
 	return exec.Command("unoconv", input).Output()
+}
+
+func failure(ctx tele.Context) error {
+	if err := ctx.Reply("Something went wrong! Please try again"); err != nil {
+		return err
+	}
+
+	return nil
 }

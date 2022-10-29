@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,13 +9,14 @@ import (
 
 	"github.com/ew1l/pdf-converter/internal/bot"
 	"github.com/ew1l/pdf-converter/internal/service"
+	"github.com/ew1l/pdf-converter/pkg/logger"
 )
 
 func main() {
-	converter := service.New(&service.Logger{})
+	converter := service.New()
 	bot, err := bot.New(converter)
 	if err != nil {
-		log.Fatalln(err)
+		logger.Fatal(err.Error())
 	}
 
 	go func() {
