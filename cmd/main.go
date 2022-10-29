@@ -25,7 +25,7 @@ func main() {
 	defer bot.Stop()
 
 	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, syscall.SIGINT)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
 	<-stop
 }
