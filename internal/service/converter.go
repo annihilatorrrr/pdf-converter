@@ -32,9 +32,8 @@ func (cnv *Converter) Convert(ctx tele.Context) error {
 
 		if err := ctx.Bot().Download(ctx.Message().Document.MediaFile(), input); err != nil {
 			logger.Error(err.Error(), args...)
-			if err := failure(ctx); err != nil {
+			if err := cnv.failure(ctx); err != nil {
 				logger.Error(err.Error(), args...)
-				return
 			}
 			return
 		}
@@ -42,9 +41,8 @@ func (cnv *Converter) Convert(ctx tele.Context) error {
 
 		if _, err := cnv.unoconv(input); err != nil {
 			logger.Error(err.Error(), args...)
-			if err := failure(ctx); err != nil {
+			if err := cnv.failure(ctx); err != nil {
 				logger.Error(err.Error(), args...)
-				return
 			}
 			return
 		}
@@ -54,10 +52,9 @@ func (cnv *Converter) Convert(ctx tele.Context) error {
 			File:     tele.FromDisk(output),
 			FileName: output,
 		}); err != nil {
-			logger.Error(err.Error())
-			if err := failure(ctx); err != nil {
+			logger.Error(err.Error(), args...)
+			if err := cnv.failure(ctx); err != nil {
 				logger.Error(err.Error(), args...)
-				return
 			}
 			return
 		}
@@ -75,7 +72,7 @@ func (cnv *Converter) unoconv(input string) ([]byte, error) {
 	return exec.Command("unoconv", input).Output()
 }
 
-func failure(ctx tele.Context) error {
+func (cnv *Converter) failure(ctx tele.Context) error {
 	if err := ctx.Reply("Something went wrong! Please try again"); err != nil {
 		return err
 	}
