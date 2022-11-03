@@ -5,7 +5,7 @@ go 1.18
 require (
 	go.uber.org/automaxprocs v1.5.1
 	go.uber.org/zap v1.23.0
-	gopkg.in/telebot.v3 v3.0.0
+	gopkg.in/telebot.v3 v3.1.2
 )
 
 require (
