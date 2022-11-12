@@ -52,14 +52,6 @@ func field(key string, value any) zapcore.Field {
 		field = zap.String(key, value.(string))
 		return field
 	}
-	if v, ok := value.(int64); ok && v != 0 {
-		field = zap.Int64(key, value.(int64))
-		return field
-	}
-	if v, ok := value.(int); ok && v != 0 {
-		field = zap.Int(key, value.(int))
-		return field
-	}
 
 	return field
 }
