@@ -59,7 +59,7 @@ func (cnv *Converter) Convert(ctx tele.Context) error {
 			return
 		}
 
-		logger.Info("Сompleted", args...)
+		logger.Info("ok", args...)
 	}(ctx)
 
 	return nil
