@@ -25,26 +25,15 @@ func (cnv *Converter) Convert(ctx tele.Context) error {
 		output := strings.TrimSuffix(input, filepath.Ext(input)) + ".pdf"
 		args := []any{"username", ctx.Sender().Username, "input", input, "output", output}
 
-		if err := ctx.Reply("In process..."); err != nil {
-			logger.Error(err.Error(), args...)
-			return
-		}
+		ctx.Reply("In process...")
 
 		if err := ctx.Bot().Download(ctx.Message().Document.MediaFile(), input); err != nil {
-			logger.Error(err.Error(), args...)
-			if err := cnv.failure(ctx); err != nil {
-				logger.Error(err.Error(), args...)
-			}
-			return
+			cnv.failure(ctx, err, args...)
 		}
 		defer os.Remove(input)
 
 		if _, err := cnv.unoconv(input); err != nil {
-			logger.Error(err.Error(), args...)
-			if err := cnv.failure(ctx); err != nil {
-				logger.Error(err.Error(), args...)
-			}
-			return
+			cnv.failure(ctx, err, args...)
 		}
 		defer os.Remove(output)
 
@@ -52,14 +41,10 @@ func (cnv *Converter) Convert(ctx tele.Context) error {
 			File:     tele.FromDisk(output),
 			FileName: output,
 		}); err != nil {
-			logger.Error(err.Error(), args...)
-			if err := cnv.failure(ctx); err != nil {
-				logger.Error(err.Error(), args...)
-			}
-			return
+			cnv.failure(ctx, err, args...)
 		}
 
-		logger.Info("ok", args...)
+		logger.Info("pdfcnv", args...)
 	}(ctx)
 
 	return nil
@@ -72,10 +57,7 @@ func (cnv *Converter) unoconv(input string) ([]byte, error) {
 	return exec.Command("unoconv", input).Output()
 }
 
-func (cnv *Converter) failure(ctx tele.Context) error {
-	if err := ctx.Reply("Something went wrong! Please try again"); err != nil {
-		return err
-	}
-
-	return nil
+func (cnv *Converter) failure(ctx tele.Context, err error, args ...any) {
+	logger.Error(err.Error(), args...)
+	ctx.Reply("Something went wrong! Please try again!")
 }
