@@ -1,3 +1,3 @@
 Bot converts documents to PDF format
 
-<img heigth="810" width="700" src="https://user-images.githubusercontent.com/34972940/198845018-5df75142-c6b9-4771-b0f3-967c10199a6b.PNG" />
+<img heigth="518" width="700" src="https://user-images.githubusercontent.com/34972940/216829090-162567f4-8a56-4bbe-9ad9-06eec50844fe.png" />
